@@ -1,19 +1,28 @@
-# Implementation Plan: Mejora de UI/UX y Funcionalidad
+# Requerimientos y Funcionalidades del Sistema de Transporte Aeroportuario
 
-El objetivo es mejorar el archivo [index.html](file:///c:/Users/User/Documents/Richard/Pagina/index.html) para cumplir con los requerimientos documentados en [requerimientos.md](file:///c:/Users/User/Documents/Richard/Pagina/requerimientos.md) y elevar la calidad visual del proyecto.
+Este documento consolida los requerimientos para la plataforma web de reserva de viajes y transfers desde y hacia el aeropuerto, enfocado en las necesidades específicas de los viajeros.
 
-## Proposed Changes
+## Funcionalidades y Requerimientos Clave
 
-### Interfaz de Usuario y Lógica
-#### [MODIFY] [index.html](file:///c:/Users/User/Documents/Richard/Pagina/index.html)
-- **Diseño Visual**: Implementar colores más vibrantes (gradientes), bordes redondeados, sombras suaves y transiciones animadas entre pasos (estética premium). Añadir fuente 'Inter' de Google Fonts.
-- **Paso 1 (Ruta)**: Añadir selección de tipo de viaje (Drop-off vs Pick-up).
-- **Paso 2 (Detalles)**: Añadir sección para número de vuelo si es llegada y requerimientos de asiento de bebé.
-- **Paso 3 (Confirmación)**: Añadir campo de notas/instrucciones. Mostrar un desglose claro de la información ingresada.
-- **Validación**: No permitir avanzar de paso si los campos obligatorios están vacíos.
-- **Botón Flotante**: Añadir botón adhesivo de WhatsApp para contacto rápido.
+1. **Reservas Programadas**:
+   - Capacidad del cliente de especificar fecha, hora, lugar de recogida y destino (Drop-off y Pick-up).
+   - Validaciones estrictas de datos obligatorios, número de pasajeros.
 
-## Verification Plan
-1. Abrir [index.html](file:///c:/Users/User/Documents/Richard/Pagina/index.html) en el navegador del usuario y verificar que la interfaz sea visualmente atractiva y responsiva.
-2. Navegar a través de los 3 pasos, confirmando que las validaciones impiden avanzar sin datos.
-3. Verificar que al finalizar se abre correctamente el enlace de WhatsApp con todos los datos recolectados.
+2. **Adaptación a Vehículo Único (Single Vehicle)**:
+   - Capacidad para gestionar de manera centralizada la agenda de un único conductor/vehículo.
+   - Algoritmos para evitar reservas superpuestas o incompatibles en tiempo.
+
+3. **Seguimiento de Vuelos y Geolocalización en Tiempo Real**:
+   - Campo para el número de vuelo en viajes de Pick-up para facilitar el monitoreo de llegadas.
+   - Proveer datos de estado de la reserva y localización del vehículo en tiempo real.
+
+4. **Gestión de Equipaje y Accesorios**:
+   - Control de equipaje facturado frente a equipaje de mano.
+   - Solicitudes especiales (ej. requerimiento de asiento de bebé).
+
+5. **Pagos e Integración**:
+   - Desglose claro para pasarela de pago y manejo de costos variables por distancia/horario.
+   
+6. **Contacto Rápido y Comunicación**:
+   - Integración nativa a través de un botón flotante de WhatsApp que arrastra los datos del formulario directamente hacia la app de mensajería para confirmación.
+   - Espacio en la confirmación para instrucciones adicionales del usuario.
