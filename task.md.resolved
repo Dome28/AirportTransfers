@@ -1,0 +1,8 @@
+# Plataforma de Transporte Aeroportuario - Mejoras
+
+- [/] Mejorar UI/UX de [index.html](file:///c:/Users/User/Documents/Richard/Pagina/index.html) usando diseño moderno (colores, fuentes, animaciones).
+- [/] Agregar campos faltantes según requerimientos (Tipo de viaje, Vuelo, Silla de bebé, Notas).
+- [/] Implementar validaciones del formulario para requerir campos antes de avanzar.
+- [/] Mostrar resumen detallado antes de enviar por WhatsApp.
+- [/] Agregar botón flotante de WhatsApp.
+- [ ] Revisión final y validación de funcionalidad.

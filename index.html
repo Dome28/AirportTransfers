@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Transporte Aeroportuario Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                        dark: '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-step {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-hidden {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .step-active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom UI for Radio Buttons */
+        .radio-card input:checked+div {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+        }
+
+        .radio-card input:checked+div i {
+            color: #2563eb;
+        }
+
+        .input-error {
+            border-color: #ef4444 !important;
+            animation: shake 0.4s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            50% {
+                transform: translateX(5px);
+            }
+
+            75% {
+                transform: translateX(-5px);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col relative">
+    <!-- Floating WA Button (Mobile First) -->
+    <a href="https://wa.me/593XXXXXXXXX" target="_blank"
+        class="fixed bottom-6 right-6 bg-green-500 text-white w-16 h-16 rounded-full shadow-2xl hover:bg-green-600 hover:scale-110 transition-transform z-50 flex items-center justify-center">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
+
+    <!-- Header -->
+    <header class="glass-header sticky top-0 z-40 shadow-sm">
+        <div class="max-w-4xl mx-auto px-5 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-primary-600 tracking-tight flex items-center">
+                <i class="fas fa-plane-departure mr-2 text-dark"></i>
+                Airport<span class="text-dark">Transfers</span>
+            </h1>
+            <a href="tel:+593XXXXXXXXX"
+                class="hidden md:flex bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-semibold items-center hover:bg-slate-800 transition-colors shadow-md">
+                <i class="fas fa-phone-alt mr-2"></i> Llámanos
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-2xl mx-auto px-4 py-8 md:py-12 w-full">
+
+        <!-- Headers -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">Tu traslado, <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-400">sin
+                    estrés</span></h2>
+            <p class="text-slate-500">Reserva con anticipación y viaja seguro.</p>
+        </div>
+
+        <!-- Progress -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span
+                    class="text-xs font-bold uppercase tracking-wider text-primary-600 bg-primary-100 px-3 py-1 rounded-full">Progreso</span>
+                <span class="text-sm font-semibold text-slate-600" id="step-counter">Paso 1 de 3</span>
+            </div>
+            <div class="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                <div id="progress-bar"
+                    class="h-full bg-gradient-to-r from-primary-500 to-blue-400 transition-all duration-500 ease-out"
+                    style="width: 33%"></div>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <form id="bookingForm"
+            class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 p-6 md:p-10 border border-slate-100 relative overflow-hidden">
+
+            <!-- STEP 1: Ruta y Tipo -->
+            <div id="step1" class="form-step step-active">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                    <span
+                        class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i
+                            class="fas fa-route"></i></span>
+                    ¿Qué tipo de viaje necesitas?
+                </h3>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <label class="radio-card cursor-pointer">
+                        <input type="radio" name="tipoViaje" value="dropoff" class="hidden" checked
+                            onchange="toggleFlightField()">
+                        <div
+                            class="border-2 border-slate-200 rounded-xl p-4 text-center transition-all hover:bg-slate-50">
+                            <i class="fas fa-plane-departure text-3xl mb-2 text-slate-400"></i>
+                            <div class="font-bold text-slate-700">Ir al Aeropuerto</div>
+                            <div class="text-xs text-slate-500 mt-1">(Drop-off)</div>
+                        </div>
+                    </label>
+                    <label class="radio-card cursor-pointer">
+                        <input type="radio" name="tipoViaje" value="pickup" class="hidden"
+                            onchange="toggleFlightField()">
+                        <div
+                            class="border-2 border-slate-200 rounded-xl p-4 text-center transition-all hover:bg-slate-50">
+                            <i class="fas fa-plane-arrival text-3xl mb-2 text-slate-400"></i>
+                            <div class="font-bold text-slate-700">Salir del Aeropuerto</div>
+                            <div class="text-xs text-slate-500 mt-1">(Pick-up)</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" id="labelAeropuerto">Selecciona
+                            el Aeropuerto</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-plane text-slate-400 text-lg"></i>
+                            </div>
+                            <select id="aeropuertoDestino"
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 appearance-none outline-none text-slate-800 font-medium">
+                                <option value="UIO">Mariscal Sucre (Quito - UIO)</option>
+                                <option value="GYE">José Joaquín de Olmedo (Guayaquil - GYE)</option>
+                                <option value="CUE">Mariscal Lamar (Cuenca - CUE)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-slate-400 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2" id="labelUbicacion">Dirección de
+                            recogida (Origen)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-map-marker-alt text-slate-400 text-lg"></i>
+                            </div>
+                            <input type="text" id="inputUbicacion" oninput="buscarSugerencias()"
+                                placeholder="Ej: Hotel Dann Carlton, Sector la Carolina..."
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors outline-none text-slate-800 font-medium placeholder-slate-400"
+                                autocomplete="off" required>
+
+                            <!-- Sugerencias -->
+                            <div id="listaSugerencias"
+                                class="absolute z-20 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl hidden max-h-56 overflow-y-auto">
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1.5 ml-1" id="errorUbicacion"
+                            style="display:none; color:#ef4444;"><i class="fas fa-exclamation-circle mr-1"></i> Por
+                            favor ingresa una ubicación válida.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Detalles (Fechas, Vuelo, Pax) -->
+            <div id="step2" class="form-step step-hidden">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                    <span
+                        class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i
+                            class="fas fa-calendar-alt"></i></span>
+                    Detalles del Traslado
+                </h3>
+
+                <div id="contenedorVuelo" class="mb-6 hidden bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Número de Vuelo de Llegada <span
+                            class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i class="fas fa-ticket-alt text-primary-400 text-lg"></i>
+                        </div>
+                        <input type="text" id="numVuelo" placeholder="Ej: IB6831 o LATAM 1442"
+                            class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none uppercase font-mono font-bold text-slate-700">
+                    </div>
+                    <p class="text-xs text-primary-600 mt-2 flex items-start"><i
+                            class="fas fa-satellite-dish mt-0.5 mr-1.5"></i> Usamos este dato para rastrear retrasos y
+                        esperarte en el momento exacto.</p>
+                    <p class="text-xs text-red-500 mt-1 ml-1" id="errorVuelo" style="display:none;"><i
+                            class="fas fa-exclamation-circle mr-1"></i> Requerido para recogidas en el aeropuerto.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Fecha de Recogida</label>
+                        <input type="date" id="fechaViaje"
+                            class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-800 font-medium cursor-pointer"
+                            required>
+                        <p class="text-xs text-slate-500 mt-1.5 ml-1" id="errorFecha"
+                            style="display:none; color:#ef4444;">Por favor selecciona la fecha.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Hora (Local)</label>
+                        <input type="time" id="horaViaje"
+                            class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-800 font-medium cursor-pointer"
+                            required>
+                        <p class="text-xs text-slate-500 mt-1.5 ml-1" id="errorHora"
+                            style="display:none; color:#ef4444;">Selecciona la hora.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Pasajeros</label>
+                        <div
+                            class="flex items-center border border-slate-200 rounded-xl bg-slate-50 w-full overflow-hidden focus-within:ring-2 focus-within:ring-primary-500 h-[52px]">
+                            <button type="button" onclick="updateCount('numPasajeros', -1)"
+                                class="w-12 h-full text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition flex items-center justify-center text-lg"><i
+                                    class="fas fa-minus"></i></button>
+                            <input type="number" id="numPasajeros" min="1" max="15" value="1"
+                                class="w-full h-full text-center bg-transparent outline-none font-bold text-slate-800 pointer-events-none text-lg">
+                            <button type="button" onclick="updateCount('numPasajeros', 1)"
+                                class="w-12 h-full text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition flex items-center justify-center text-lg"><i
+                                    class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Maletas</label>
+                        <div
+                            class="flex items-center border border-slate-200 rounded-xl bg-slate-50 w-full overflow-hidden focus-within:ring-2 focus-within:ring-primary-500 h-[52px]">
+                            <button type="button" onclick="updateCount('numMaletas', -1)"
+                                class="w-12 h-full text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition flex items-center justify-center text-lg"><i
+                                    class="fas fa-minus"></i></button>
+                            <input type="number" id="numMaletas" min="0" max="15" value="1"
+                                class="w-full h-full text-center bg-transparent outline-none font-bold text-slate-800 pointer-events-none text-lg">
+                            <button type="button" onclick="updateCount('numMaletas', 1)"
+                                class="w-12 h-full text-slate-500 hover:bg-slate-200 hover:text-slate-800 transition flex items-center justify-center text-lg"><i
+                                    class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-start group hover:bg-indigo-100/50 transition-colors">
+                    <div class="flex items-center h-5 mt-1">
+                        <input id="sillaBebe" type="checkbox"
+                            class="w-5 h-5 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2 cursor-pointer accent-primary-600">
+                    </div>
+                    <div class="ml-3">
+                        <label for="sillaBebe" class="font-bold text-slate-800 cursor-pointer block">Requiere silla de
+                            seguridad para bebé</label>
+                        <p class="text-slate-500 text-xs mt-1 leading-relaxed">Garantizamos la seguridad de los más
+                            pequeños. Llevaremos una silla especial homologada sin costo extra.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Confirmación y Contacto -->
+            <div id="step3" class="form-step step-hidden">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                    <span
+                        class="bg-primary-100 text-primary-600 w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm"><i
+                            class="fas fa-user-check"></i></span>
+                    Datos de Contacto Final
+                </h3>
+
+                <div class="space-y-5 mb-8">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nombre Completo <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-slate-400 text-lg"></i>
+                            </div>
+                            <input type="text" id="nombreUsuario" placeholder="Ej: Juan Pérez"
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-800 font-medium"
+                                required>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1 ml-1" id="errorNombre" style="display:none;"><i
+                                class="fas fa-exclamation-circle mr-1"></i> El nombre es obligatorio.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">WhatsApp / Teléfono Móvil <span
+                                class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                                <i class="fab fa-whatsapp text-[#25D366] text-xl"></i>
+                            </div>
+                            <input type="tel" id="telUsuario" placeholder="Ej: +593 99 999 9999"
+                                class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-800 font-medium"
+                                required>
+                        </div>
+                        <p class="text-xs text-red-500 mt-1 ml-1" id="errorTel" style="display:none;"><i
+                                class="fas fa-exclamation-circle mr-1"></i> Ingresa un número de contacto válido.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Instrucciones Adicionales <span
+                                class="text-slate-400 font-normal ml-1">(Opcional)</span></label>
+                        <div class="relative">
+                            <div class="absolute top-3 left-0 pl-3.5 pointer-events-none">
+                                <i class="fas fa-comment-alt text-slate-400"></i>
+                            </div>
+                            <textarea id="notasViaje" rows="2"
+                                placeholder="Ej: Esperar en puerta principal, llevo una mascota pequeña en kennel, viaja una persona mayor..."
+                                class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-slate-800 resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen y Tarifa -->
+                <div class="relative rounded-2xl overflow-hidden shadow-lg border border-slate-800 bg-slate-900 mt-2">
+                    <!-- Decoración -->
+                    <div
+                        class="absolute -right-16 -top-16 w-48 h-48 bg-primary-500/20 rounded-full blur-[40px] pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute -left-16 -bottom-16 w-48 h-48 bg-purple-500/20 rounded-full blur-[40px] pointer-events-none">
+                    </div>
+
+                    <div class="relative p-6 md:p-8 text-center">
+                        <div class="inline-block bg-slate-800 rounded-full px-4 py-1.5 border border-slate-700 mb-4">
+                            <p
+                                class="text-slate-300 text-[10px] md:text-xs uppercase font-extrabold tracking-widest flex items-center">
+                                <i class="fas fa-tags text-primary-400 mr-2"></i> Tarifa Total Estimada
+                            </p>
+                        </div>
+                        <div class="text-5xl md:text-6xl font-black text-white flex justify-center items-start">
+                            <span class="text-2xl mt-2 text-slate-400 mr-1">$</span><span id="precioEstimado">--</span>
+                        </div>
+                        <div
+                            class="mt-4 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-5 text-xs text-slate-400 font-medium">
+                            <div class="flex items-center"><i class="fas fa-check-circle text-green-400 mr-1.5"></i>
+                                Vehículo privado</div>
+                            <div class="flex items-center hidden md:flex"><i
+                                    class="fas fa-circle text-[4px] text-slate-600"></i></div>
+                            <div class="flex items-center"><i class="fas fa-check-circle text-green-400 mr-1.5"></i>
+                                Pago al conductor al subir</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Navegación -->
+            <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center relative z-10">
+                <button type="button" id="prevBtn" onclick="changeStep(-1)"
+                    class="hidden text-slate-500 font-bold px-5 py-3.5 rounded-xl hover:bg-slate-100 transition-colors flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Atrás
+                </button>
+                <div id="stepSpacer" class="w-full"></div> <!-- Ocupa espacio si prev no está -->
+                <button type="button" id="nextBtn" onclick="validateAndNext()"
+                    class="ml-auto bg-primary-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-primary-500/30 hover:bg-primary-700 hover:-translate-y-0.5 transition-all text-sm md:text-base flex items-center whitespace-nowrap active:scale-95">
+                    Continuar al Paso 2 <i class="fas fa-arrow-right ml-2.5"></i>
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center text-slate-400 text-xs mt-8">
+            <i class="fas fa-lock text-slate-300 mr-1"></i> Viajes asegurados y conductores verificados. Tus datos son
+            privados.
+        </p>
+    </main>
+
+    <script>
+        // Config inicial
+        let currentStep = 1;
+        const totalSteps = 3;
+        let precioCalculado = 25; // Precio base por defecto
+        const WHATSAPP_NUMBER = "593XXXXXXXXX"; // Reemplazar con el número real en prod
+
+        // Set fechas para el input (mínimo hoy)
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('fechaViaje');
+            const today = new Date();
+            // Formateo YYYY-MM-DD local
+            const offset = today.getTimezoneOffset()
+            const localISOTime = (new Date(today.getTime() - (offset * 60 * 1000))).toISOString().split('T')[0];
+            dateInput.min = localISOTime;
+        });
+
+        // Base de datos de calles y lugares (Quito)
+        const lugaresQuito = [
+            { nombre: "Sector CCI (Iñaquito)", zona: "centro" },
+            { nombre: "Hotel Dann Carlton", zona: "centro" },
+            { nombre: "La Carolina", zona: "centro" },
+            { nombre: "Centro Histórico", zona: "centro" },
+            { nombre: "La Mariscal (Plaza Foch)", zona: "centro" },
+            { nombre: "El Batán", zona: "centro" },
+            { nombre: "González Suárez", zona: "centro" },
+            { nombre: "Calle Piedras Negras", zona: "norte" },
+            { nombre: "El Condado", zona: "norte" },
+            { nombre: "Ponciano", zona: "norte" },
+            { nombre: "Carcelén", zona: "norte" },
+            { nombre: "Carapungo", zona: "norte" },
+            { nombre: "Calderón", zona: "norte" },
+            { nombre: "Cotocollao", zona: "norte" },
+            { nombre: "San Carlos", zona: "norte" },
+            { nombre: "Quicentro Sur", zona: "sur" },
+            { nombre: "Villa Flora", zona: "sur" },
+            { nombre: "Chillogallo", zona: "sur" },
+            { nombre: "Terminal Terrestre Quitumbe", zona: "sur" },
+            { nombre: "Solanda", zona: "sur" }
+        ];
+
+        function toggleFlightField() {
+            const isPickup = document.querySelector('input[name="tipoViaje"]:checked').value === 'pickup';
+            const contenedorVuelo = document.getElementById('contenedorVuelo');
+            const labelUbicacion = document.getElementById('labelUbicacion');
+            const labelAeropuerto = document.getElementById('labelAeropuerto');
+
+            if (isPickup) {
+                // Saliendo del Aeropuerto
+                contenedorVuelo.classList.remove('hidden');
+                labelUbicacion.innerText = "Dirección de destino (A dónde te llevamos)";
+                labelAeropuerto.innerText = "Aeropuerto de Origen (Dónde te recogemos)";
+                document.getElementById('inputUbicacion').placeholder = "Ej: Hotel JW Marriott o tu dirección exacta";
+            } else {
+                // Yendo al Aeropuerto
+                contenedorVuelo.classList.add('hidden');
+                labelUbicacion.innerText = "Dirección de recogida (Desde dónde sales)";
+                labelAeropuerto.innerText = "Aeropuerto de Destino (A dónde vas)";
+                document.getElementById('inputUbicacion').placeholder = "Ej: Tu barrio, hotel o edificio...";
+            }
+        }
+
+        function buscarSugerencias() {
+            const inputEl = document.getElementById('inputUbicacion');
+            const input = inputEl.value.toLowerCase().trim();
+            const lista = document.getElementById('listaSugerencias');
+            lista.innerHTML = '';
+
+            // Ocultar error al escribir
+            inputEl.classList.remove('input-error');
+            document.getElementById('errorUbicacion').style.display = 'none';
+
+            if (input.length < 2) {
+                lista.classList.add('hidden');
+                return;
+            }
+
+            const filtrados = lugaresQuito.filter(l => l.nombre.toLowerCase().includes(input));
+
+            if (filtrados.length > 0) {
+                lista.classList.remove('hidden');
+                filtrados.forEach(l => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<i class="fas fa-map-marker-alt mr-3 text-slate-300"></i> <span class="font-bold text-slate-700">${l.nombre}</span> <span class="text-xs text-slate-400 ml-auto bg-slate-100 px-2 py-1 rounded">Quito ${l.zona}</span>`;
+                    div.className = "flex items-center px-4 py-3 hover:bg-primary-50 cursor-pointer text-sm border-b border-slate-100 last:border-0 transition-colors";
+                    div.onclick = () => seleccionarLugar(l);
+                    lista.appendChild(div);
+                });
+            } else {
+                lista.classList.add('hidden');
+            }
+        }
+
+        function seleccionarLugar(lugar) {
+            document.getElementById('inputUbicacion').value = lugar.nombre;
+            document.getElementById('listaSugerencias').classList.add('hidden');
+
+            // Calcular precio estimado basado en zona
+            if (lugar.zona === "norte") precioCalculado = 22;
+            else if (lugar.zona === "centro") precioCalculado = 26;
+            else if (lugar.zona === "sur") precioCalculado = 32;
+
+            actualizarPrecioUI();
+        }
+
+        function actualizarPrecioUI() {
+            document.getElementById('precioEstimado').innerText = precioCalculado.toFixed(2);
+        }
+
+        function updateCount(id, change) {
+            const input = document.getElementById(id);
+            let val = parseInt(input.value) + change;
+            const min = parseInt(input.min) || 0;
+            const max = parseInt(input.max) || 15;
+
+            if (val >= min && val <= max) {
+                input.value = val;
+            }
+        }
+
+        function hideAllErrors() {
+            const errors = ['errorUbicacion', 'errorFecha', 'errorHora', 'errorVuelo', 'errorNombre', 'errorTel'];
+            const inputs = ['inputUbicacion', 'fechaViaje', 'horaViaje', 'numVuelo', 'nombreUsuario', 'telUsuario'];
+
+            errors.forEach(id => document.getElementById(id).style.display = 'none');
+            inputs.forEach(id => document.getElementById(id).classList.remove('input-error'));
+        }
+
+        // VALIDACIONES Y NAVEGACIÓN
+        function validateAndNext() {
+            hideAllErrors();
+
+            if (currentStep === 1) {
+                const ubi = document.getElementById('inputUbicacion');
+                if (!ubi.value.trim()) {
+                    ubi.classList.add('input-error');
+                    document.getElementById('errorUbicacion').style.display = 'block';
+                    ubi.focus();
+                    return;
+                }
+
+                // Actualiza precio por si el usuario tipeó manualmente en vez de usar sugerencias
+                if (document.getElementById('precioEstimado').innerText === '--') {
+                    // Calculo trivial si no hay match
+                    if (ubi.value.toLowerCase().includes('sur') || ubi.value.toLowerCase().includes('quitumbe')) {
+                        precioCalculado = 32;
+                    } else if (ubi.value.toLowerCase().includes('norte') || ubi.value.toLowerCase().includes('carcelen')) {
+                        precioCalculado = 22;
+                    } else {
+                        precioCalculado = 26; // Promedio centro
+                    }
+                    actualizarPrecioUI();
+                }
+            }
+            else if (currentStep === 2) {
+                let isValid = true;
+
+                // Validar Fecha y Hora
+                const fecha = document.getElementById('fechaViaje');
+                const hora = document.getElementById('horaViaje');
+                const isPickup = document.querySelector('input[name="tipoViaje"]:checked').value === 'pickup';
+                const vuelo = document.getElementById('numVuelo');
+
+                if (!fecha.value) {
+                    fecha.classList.add('input-error');
+                    document.getElementById('errorFecha').style.display = 'block';
+                    isValid = false;
+                }
+
+                if (!hora.value) {
+                    hora.classList.add('input-error');
+                    document.getElementById('errorHora').style.display = 'block';
+                    isValid = false;
+                }
+
+                // Si es recogida de aeropuerto, pedimos número de vuelo obligatoriamente
+                if (isPickup && (!vuelo.value.trim() || vuelo.value.trim().length < 3)) {
+                    vuelo.classList.add('input-error');
+                    document.getElementById('errorVuelo').style.display = 'block';
+                    if (isValid) vuelo.focus();
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+            }
+            else if (currentStep === 3) {
+                const nom = document.getElementById('nombreUsuario');
+                const tel = document.getElementById('telUsuario');
+                let isValid = true;
+
+                if (!nom.value.trim()) {
+                    nom.classList.add('input-error');
+                    document.getElementById('errorNombre').style.display = 'block';
+                    isValid = false;
+                }
+
+                if (!tel.value.trim() || tel.value.length < 7) {
+                    tel.classList.add('input-error');
+                    document.getElementById('errorTel').style.display = 'block';
+                    if (isValid) tel.focus();
+                    isValid = false;
+                }
+
+                if (!isValid) return;
+
+                // TODO OK! ENVIAR AL WHATSAPP
+                generarReserva();
+                return;
+            }
+
+            // Cambiar de paso visualmente
+            changeStep(1);
+        }
+
+        function changeStep(n) {
+            const steps = document.querySelectorAll('.form-step');
+
+            // Ocultar step actual
+            steps[currentStep - 1].classList.remove('step-active');
+            steps[currentStep - 1].classList.add('step-hidden');
+
+            currentStep += n;
+
+            // Mostrar nuevo step
+            steps[currentStep - 1].classList.remove('step-hidden');
+            steps[currentStep - 1].classList.add('step-active');
+
+            // Actualizar UI Progress
+            document.getElementById('step-counter').innerText = `Paso ${currentStep} de ${totalSteps}`;
+            document.getElementById('progress-bar').style.width = (currentStep / totalSteps * 100) + '%';
+
+            // Botones
+            const prevBtn = document.getElementById('prevBtn');
+            const spacer = document.getElementById('stepSpacer');
+
+            if (currentStep === 1) {
+                prevBtn.classList.add('hidden');
+                spacer.classList.remove('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+                spacer.classList.add('hidden');
+            }
+
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentStep === 3) {
+                nextBtn.innerHTML = '<i class="fab fa-whatsapp text-xl mr-2"></i> Reservar y Confirmar';
+                nextBtn.classList.remove('bg-primary-600', 'hover:bg-primary-700', 'shadow-primary-500/30');
+                nextBtn.classList.add('bg-[#25D366]', 'hover:bg-[#1faa51]', 'shadow-green-500/30');
+            } else {
+                nextBtn.innerHTML = `Continuar al Paso ${currentStep + 1} <i class="fas fa-arrow-right ml-2.5"></i>`;
+                nextBtn.classList.add('bg-primary-600', 'hover:bg-primary-700', 'shadow-primary-500/30');
+                nextBtn.classList.remove('bg-[#25D366]', 'hover:bg-[#1faa51]', 'shadow-green-500/30');
+            }
+
+            // Scroll suave hacia arriba
+            document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function generarReserva() {
+            // Recolectar datos Formulario
+            const esPickup = document.querySelector('input[name="tipoViaje"]:checked').value === 'pickup';
+            const tipoTrayecto = esPickup ? "Llegada al Aeropuerto (Pick-up)" : "Salida al Aeropuerto (Drop-off)";
+
+            const selArpt = document.getElementById('aeropuertoDestino');
+            const txtAeropuerto = selArpt.options[selArpt.selectedIndex].text;
+
+            const txtUbicacion = document.getElementById('inputUbicacion').value.trim();
+            const txtVuelo = document.getElementById('numVuelo').value.trim().toUpperCase() || 'NO APLICA';
+
+            // Fechas Formateadas
+            const rawFecha = document.getElementById('fechaViaje').value; // YYYY-MM-DD
+            const partesFecha = rawFecha.split('-');
+            const txtFecha = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+
+            const txtHora = document.getElementById('horaViaje').value; // HH:MM
+
+            const txtPax = document.getElementById('numPasajeros').value;
+            const txtMaletas = document.getElementById('numMaletas').value;
+            const usaSillaBebe = document.getElementById('sillaBebe').checked ? 'SÍ ✅' : 'NO ❌';
+
+            const txtNombre = document.getElementById('nombreUsuario').value.trim();
+            const txtNotas = document.getElementById('notasViaje').value.trim() || 'Ninguna especificada';
+
+            // Armar mensaje WhatsApp con emojis para facilitar la lectura al conductor
+            let msj = `*NUEVA SOLICITUD DE RESERVA PREMIUM* 🚕✈️%0A`;
+            msj += `-----------------------------------%0A%0A`;
+
+            msj += `👤 *Pasajero Principal:* ${txtNombre}%0A`;
+            msj += `🔄 *Tipo de Viaje:* ${tipoTrayecto}%0A`;
+
+            if (esPickup) {
+                msj += `🛫 *Aeropuerto (Origen):* ${txtAeropuerto}%0A`;
+                msj += `🎫 *Aerolínea / Vuelo:* ${txtVuelo}%0A`;
+                msj += `🏡 *Destino Final:* ${txtUbicacion}%0A`;
+            } else {
+                msj += `🏡 *Lugar de Recogida:* ${txtUbicacion}%0A`;
+                msj += `🛬 *Aeropuerto (Destino):* ${txtAeropuerto}%0A`;
+            }
+
+            msj += `%0A📅 *Fecha Programada:* ${txtFecha}%0A`;
+            msj += `⏰ *Hora Local:* ${txtHora} HRS%0A%0A`;
+
+            msj += `📋 *DETALLES PASAJEROS:*%0A`;
+            msj += `- Total personas: ${txtPax}%0A`;
+            msj += `- Piezas de equipaje: ${txtMaletas}%0A`;
+            msj += `- Requiere Silla Bebé: ${usaSillaBebe}%0A%0A`;
+
+            msj += `📝 *Instrucciones Extras:*%0A_${txtNotas}_%0A%0A`;
+            msj += `-----------------------------------%0A`;
+            msj += `💰 *TARIFA TOTAL ESTIMADA:* $${precioCalculado.toFixed(2)} USD%0A`;
+            msj += `_Pago directo al conductor al iniciar el viaje._%0A%0A`;
+
+            msj += `¿Podemos confirmar esta reserva con un conductor ahora?`;
+
+            // Enviar y Abrir WhatsApp
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msj}`, '_blank');
+        }
+
+        // Control de teclado (Prevención envío nativo y Enter)
+        document.getElementById('bookingForm').addEventListener('submit', e => e.preventDefault());
+        document.addEventListener('keydown', function (event) {
+            // Si hace enter estando enfocado en input, avanzar paso
+            if (event.key === "Enter" && event.target.tagName === 'INPUT') {
+                event.preventDefault();
+                validateAndNext();
+            }
+        });
+
+        // Clic fuera de sugerencias cierra dropdown
+        document.addEventListener('click', function (e) {
+            const inputContainer = document.getElementById('inputUbicacion').parentElement;
+            const suggestions = document.getElementById('listaSugerencias');
+            if (!inputContainer.contains(e.target)) {
+                suggestions.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>
